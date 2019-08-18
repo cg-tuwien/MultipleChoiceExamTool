@@ -1,0 +1,238 @@
+﻿<Window x:Class="McExamTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:McExamTool"
+        xmlns:converter="clr-namespace:McExamTool.Converter"
+        mc:Ignorable="d"
+        Title="MainWindow" d:DesignHeight="800" d:DesignWidth="1000" FontSize="24" FontWeight="Bold">
+    
+    <Window.Resources>
+        <converter:ExamStateToCollapsedConverter x:Key="StartVisiConv" VisibleState="Start"/>
+        <converter:ExamStateToCollapsedConverter x:Key="QuestionsVisiConv" VisibleState="Questions"/>
+        <converter:ExamStateToCollapsedConverter x:Key="FinishedVisiConv" VisibleState="Finished"/>
+        <converter:EmptyToHiddenConverter x:Key="EmptyToHiddenConv" />
+        <BitmapImage x:Key='defaultImage' UriSource='/ImageNullRef;component/errorImage.png' />
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!--Exam Selector View-->
+        <Grid Grid.Row="0" Visibility="{Binding ExamState, Converter={StaticResource StartVisiConv}}">
+            <Grid DataContext="{Binding SetupData}">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <TextBlock Text="Multiple-Choice Exam Tool" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                
+                    <Rectangle Height="5" VerticalAlignment="Stretch" Fill="LightGray" Margin="10"></Rectangle>
+                
+                    <TextBlock Text="Vorname des Studenten:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBox HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding StudentFirstName, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Nachname des Studenten:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBox HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding StudentLastName, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Matrikelnummer des Studenten:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBox HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding StudentMatriculationNumber, UpdateSourceTrigger=PropertyChanged}" />
+                
+                    <Rectangle Height="5" VerticalAlignment="Stretch" Fill="LightGray" Margin="10"></Rectangle>
+
+                    <TextBlock Text="Pfad zur CSV-Datei:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBox HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding PathToCsvFile, UpdateSourceTrigger=PropertyChanged, FallbackValue=C:\\, TargetNullValue=C:\\}" />
+                    <TextBlock Text="Anzahl Fragen:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBox HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding NumQuestionsToAsk, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}" />
+            
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!--Exam Question View-->
+        <Grid Grid.Row="0" Visibility="{Binding ExamState, Converter={StaticResource QuestionsVisiConv}}">
+            <Grid DataContext="{Binding CurrentQuestion}" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="300" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" MinWidth="300"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Column="0" Grid.RowSpan="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="{Binding PathToImage}" FontSize="10" Margin="5"/>
+                        <Image Grid.Row="1" HorizontalAlignment="Stretch" Stretch="Uniform" MinWidth="300" MinHeight="300" Margin="5" 
+                               Source="{Binding PathToImage, TargetNullValue={StaticResource defaultImage}}"/>
+                    </Grid>
+
+                    <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="6" Background="LightGray" Foreground="LightGray" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+
+                    <Grid Grid.Row="0" Grid.Column="2" Background="FloralWhite">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Frage:" TextAlignment="Left" Margin="15,15,15,10" FontSize="20"></TextBlock>
+                        <TextBlock Grid.Row="1" Margin="15,0,15,0" Text="{Binding Question}" TextWrapping="Wrap" 
+                                   FontFamily="Arial Black" FontWeight="Bold" FontSize="32" />
+                    </Grid>
+
+                    <Grid Grid.Row="1" Grid.Column="2" Background="WhiteSmoke" Visibility="{Binding Answer1, Converter={StaticResource EmptyToHiddenConv}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
+                            <CheckBox IsChecked="{Binding IsAnswer1Selected}" />
+                        </Viewbox>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Antwort 1:" TextAlignment="Left" Margin="10,8,10,5" FontSize="20"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0,10,0" Text="{Binding Answer1}" TextWrapping="Wrap" 
+                                   FontFamily="Arial Black" FontWeight="Bold" FontSize="32" />
+                    </Grid>
+
+                    <Grid Grid.Row="2" Grid.Column="2" Background="#fafafa" Visibility="{Binding Answer2, Converter={StaticResource EmptyToHiddenConv}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
+                            <CheckBox IsChecked="{Binding IsAnswer2Selected}" />
+                        </Viewbox>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Antwort 2:" TextAlignment="Left" Margin="10,8,10,5" FontSize="20"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0,10,0" Text="{Binding Answer2}" TextWrapping="Wrap" 
+                                   FontFamily="Arial Black" FontWeight="Bold" FontSize="32" />
+                    </Grid>
+
+                    <Grid Grid.Row="3" Grid.Column="2" Background="WhiteSmoke" Visibility="{Binding Answer3, Converter={StaticResource EmptyToHiddenConv}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
+                            <CheckBox IsChecked="{Binding IsAnswer3Selected}" />
+                        </Viewbox>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Antwort 3:" TextAlignment="Left" Margin="10,8,10,5" FontSize="20"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0,10,0" Text="{Binding Answer3}" TextWrapping="Wrap" 
+                                   FontFamily="Arial Black" FontWeight="Bold" FontSize="32" />
+                    </Grid>
+
+                    <Grid Grid.Row="4" Grid.Column="2" Background="#fafafa" Visibility="{Binding Answer4, Converter={StaticResource EmptyToHiddenConv}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
+                            <CheckBox IsChecked="{Binding IsAnswer4Selected}" />
+                        </Viewbox>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Antwort 4:" TextAlignment="Left" Margin="10,8,10,5" FontSize="20"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0,10,0" Text="{Binding Answer4}" TextWrapping="Wrap" 
+                                   FontFamily="Arial Black" FontWeight="Bold" FontSize="32" />
+                    </Grid>
+
+                    <Grid Grid.Row="5" Grid.Column="2" Background="WhiteSmoke" Visibility="{Binding Answer5, Converter={StaticResource EmptyToHiddenConv}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
+                            <CheckBox IsChecked="{Binding IsAnswer5Selected}" />
+                        </Viewbox>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Antwort 5:" TextAlignment="Left" Margin="10,8,10,5" FontSize="20"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0,10,0" Text="{Binding Answer5}" TextWrapping="Wrap" 
+                                   FontFamily="Arial Black" FontWeight="Bold" FontSize="32" />
+                    </Grid>
+
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!--Exam Results View-->
+        <Grid Grid.Row="0" Visibility="{Binding ExamState, Converter={StaticResource FinishedVisiConv}}">
+            <Grid DataContext="{Binding ResultData}" >
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <TextBlock Text="Resultat" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,10,10,0" />
+
+                    <Rectangle Height="5" VerticalAlignment="Stretch" Fill="LightGray" Margin="10"></Rectangle>
+
+                    <TextBlock Text="Vorname des Studenten:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding StudentFirstName}" />
+                    <TextBlock Text="Nachname des Studenten:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding StudentLastName}" />
+                    <TextBlock Text="Matrikelnummer des Studenten:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding StudentMatriculationNumber}" />
+
+                    <Rectangle Height="5" VerticalAlignment="Stretch" Fill="LightGray" Margin="10"></Rectangle>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Gestellte Fragen:" HorizontalAlignment="Left" Margin="10,10,10,10" />
+                        <TextBlock Margin="10,10,10,10" MinWidth="500" Text="{Binding NumQuestionsAsked}" FontWeight="Bold" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Richtig beantwortete Fragen:" HorizontalAlignment="Left" Margin="10,10,10,10" />
+                        <TextBlock Margin="10,10,10,10" MinWidth="500" Text="{Binding NumCorrectAnswers}" FontWeight="Bold" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Richtig beantwortet in Prozent:" HorizontalAlignment="Left" Margin="10,10,10,10" />
+                        <TextBlock Margin="10,10,10,10" MinWidth="500" Text="{Binding NumCorrectPercent, StringFormat=P0}" FontWeight="Bold" />
+                    </StackPanel>
+
+                    <Rectangle Height="5" VerticalAlignment="Stretch" Fill="LightGray" Margin="10"></Rectangle>
+
+                    <TextBlock Text="Speicherort der Resultate:" HorizontalAlignment="Left" Margin="10,10,10,0" />
+                    <TextBox HorizontalAlignment="Left" Margin="10,0,10,10" MinWidth="500" Text="{Binding ResultsSavePath, UpdateSourceTrigger=PropertyChanged, FallbackValue=C:\\, TargetNullValue=C:\\}" />
+
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Padding="10" Margin="10" Grid.Column="0" Content="Start" Command="{Binding StartCommand}"/>
+            <Button Padding="10" Margin="10" Grid.Column="1" Content="Zurück" Command="{Binding BackCommand}"/>
+            <Button Padding="10" Margin="10" Grid.Column="2" Content="Weiter" Command="{Binding NextCommand}"/>
+            <Button Padding="10" Margin="10" Grid.Column="3" Content="Speichern" Command="{Binding StoreResultsCommand}"/>
+            
+        </Grid>
+    </Grid>
+</Window>
+
